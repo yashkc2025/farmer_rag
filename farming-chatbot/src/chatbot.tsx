@@ -25,7 +25,8 @@ const AIAdvisory: React.FC = () => {
     {
       id: "1",
       type: "bot",
-      content: "🌱 Hello! I'm KhetSense – your AI-powered farming assistant. You can ask me questions about crops, farming practices, or schemes, send images for analysis, and even chat using voice . How can I help you today?",
+      content:
+        "🌱 Hello! I'm KhetSense – your AI-powered farming assistant. You can ask me questions about crops, farming practices, or schemes, send images for analysis, and even chat using voice . How can I help you today?",
       timestamp: new Date(),
     },
   ]);
@@ -54,11 +55,14 @@ const AIAdvisory: React.FC = () => {
 
       // Cleanup media stream
       if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       }
 
       // Stop recording if active
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
         mediaRecorderRef.current.stop();
       }
     };
@@ -104,12 +108,12 @@ const AIAdvisory: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, language: currentLanguage }),
       });
-      
+
       if (!res.ok) {
         console.error(`TTS HTTP error! status: ${res.status}`);
         return null;
       }
-      
+
       const data = await res.json();
       if (data.audio_url) {
         return data.audio_url;
@@ -134,7 +138,7 @@ const AIAdvisory: React.FC = () => {
         }
         const newAudio = new Audio(audioUrl);
         setAudioPlayer(newAudio);
-        
+
         newAudio.onplay = () => setActiveAudio(messageId);
         newAudio.onended = () => setActiveAudio(null);
         newAudio.onpause = () => setActiveAudio(null);
@@ -142,8 +146,8 @@ const AIAdvisory: React.FC = () => {
           console.error("Audio playback error:", e);
           setActiveAudio(null);
         };
-        
-        newAudio.play().catch(err => {
+
+        newAudio.play().catch((err) => {
           console.error("Failed to play audio:", err);
           setActiveAudio(null);
         });
@@ -161,21 +165,21 @@ const AIAdvisory: React.FC = () => {
       mediaStreamRef.current = stream;
       mediaRecorderRef.current = new MediaRecorder(stream);
       audioChunks.current = [];
-      
+
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) audioChunks.current.push(event.data);
       };
-      
+
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
         await sendAudioToChat(audioBlob);
         // Clean up media stream
         if (mediaStreamRef.current) {
-          mediaStreamRef.current.getTracks().forEach(track => track.stop());
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
           mediaStreamRef.current = null;
         }
       };
-      
+
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (err) {
@@ -185,7 +189,10 @@ const AIAdvisory: React.FC = () => {
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
@@ -208,18 +215,18 @@ const AIAdvisory: React.FC = () => {
         method: "POST",
         body: formData,
       });
-      
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
-      
+
       // Update session ID if provided
       if (!sessionId && data.session_id) {
         setSessionId(data.session_id);
       }
-      
+
       if (data.response && data.transcript) {
         const userMsg: ChatMessage = {
           id: Date.now().toString(),
@@ -244,7 +251,8 @@ const AIAdvisory: React.FC = () => {
       const errorMsg: ChatMessage = {
         id: Date.now().toString(),
         type: "bot",
-        content: "Sorry, I couldn't process your audio. Please try again or type your message.",
+        content:
+          "Sorry, I couldn't process your audio. Please try again or type your message.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -295,11 +303,11 @@ const AIAdvisory: React.FC = () => {
           body: formData,
         });
       }
-      
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
 
       // Update session ID if provided
@@ -357,11 +365,11 @@ const AIAdvisory: React.FC = () => {
         method: "POST",
         body: formData,
       });
-      
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
 
       // Update session ID if provided
@@ -415,7 +423,9 @@ const AIAdvisory: React.FC = () => {
                 key={m.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex ${m.type === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${
+                  m.type === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
                   className={`flex items-start space-x-2 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg ${
@@ -456,7 +466,11 @@ const AIAdvisory: React.FC = () => {
                           onClick={() => togglePlayback(m.id, m.audioUrl!)}
                           className="ml-2 text-gray-300 hover:text-white flex-shrink-0"
                         >
-                          {activeAudio === m.id ? <Pause size={16} /> : <Play size={16} />}
+                          {activeAudio === m.id ? (
+                            <Pause size={16} />
+                          ) : (
+                            <Play size={16} />
+                          )}
                         </button>
                       )}
                     </div>
@@ -476,7 +490,9 @@ const AIAdvisory: React.FC = () => {
                     <Bot className="h-4 w-4 text-white" />
                   </div>
                   <div className="bg-gray-800 px-4 py-2 rounded-lg text-gray-400">
-                    {isProcessingAudio ? "🎤 Processing audio..." : "💭 Thinking..."}
+                    {isProcessingAudio
+                      ? "🎤 Processing audio..."
+                      : "💭 Thinking..."}
                   </div>
                 </div>
               </motion.div>
@@ -501,18 +517,29 @@ const AIAdvisory: React.FC = () => {
                 </button>
               </div>
             )}
-            
+
             <div className="flex items-center space-x-1 sm:space-x-2">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !isTyping && !isProcessingAudio && handleSendMessage()}
-                placeholder={isProcessingAudio ? "Processing audio..." : isRecording ? "Recording..." : "Ask me anything about farming..."}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  !isTyping &&
+                  !isProcessingAudio &&
+                  handleSendMessage()
+                }
+                placeholder={
+                  isProcessingAudio
+                    ? "Processing audio..."
+                    : isRecording
+                    ? "Recording..."
+                    : "Ask me anything about farming..."
+                }
                 className="flex-1 px-2 sm:px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600 text-sm sm:text-base"
                 disabled={isRecording || isProcessingAudio}
               />
-              
+
               {/* Image upload */}
               <input
                 type="file"
@@ -533,18 +560,24 @@ const AIAdvisory: React.FC = () => {
               >
                 📷
               </label>
-              
+
               <button
                 onClick={handleMicClick}
                 disabled={isProcessingAudio || isTyping}
                 className={`px-2 sm:px-3 py-2 rounded-lg transition-colors touch-manipulation ${
-                  isRecording 
-                    ? "bg-red-600 animate-pulse" 
-                    : isProcessingAudio 
-                      ? "bg-yellow-600 opacity-50 cursor-not-allowed" 
-                      : "bg-gray-700 hover:bg-gray-600 active:bg-gray-500"
+                  isRecording
+                    ? "bg-red-600 animate-pulse"
+                    : isProcessingAudio
+                    ? "bg-yellow-600 opacity-50 cursor-not-allowed"
+                    : "bg-gray-700 hover:bg-gray-600 active:bg-gray-500"
                 }`}
-                title={isProcessingAudio ? "Processing audio..." : isRecording ? "Stop recording" : "Start recording"}
+                title={
+                  isProcessingAudio
+                    ? "Processing audio..."
+                    : isRecording
+                    ? "Stop recording"
+                    : "Start recording"
+                }
               >
                 <Mic className="h-4 w-4 text-white" />
               </button>
@@ -564,7 +597,11 @@ const AIAdvisory: React.FC = () => {
               </select>
               <button
                 onClick={handleSendMessage}
-                disabled={isTyping || isProcessingAudio || (!inputMessage.trim() && !imageFile)}
+                disabled={
+                  isTyping ||
+                  isProcessingAudio ||
+                  (!inputMessage.trim() && !imageFile)
+                }
                 className="px-2 sm:px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed active:bg-green-800 touch-manipulation"
               >
                 <Send className="h-4 w-4" />
@@ -575,7 +612,9 @@ const AIAdvisory: React.FC = () => {
 
         {/* Quick Questions */}
         <div className="bg-gray-900 rounded-xl p-3 sm:p-4 shadow border border-gray-800 mt-4 sm:mt-6 w-full">
-          <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-100">Quick Questions</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-100">
+            Quick Questions
+          </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {quickQuestions.map((q, i) => (
               <button
@@ -594,41 +633,60 @@ const AIAdvisory: React.FC = () => {
       <footer className="bg-gray-950 text-gray-400 py-3 sm:py-4 border-t border-gray-800">
         <div className="container mx-auto text-center space-y-3 px-4">
           <div className="text-xs sm:text-sm">
-            © 2025 Astitva Agarwal | IIT Madras | KhetSense (Kisan Call center RAG) | Data Science & Artificial Intelligence
+            © 2025 Yash Kumar | IIT Madras | KhetSense (Kisan Call center RAG) |
+            Data Science & Artificial Intelligence
           </div>
-          
+
           {/* Social Links */}
           <div className="flex justify-center space-x-4 sm:space-x-6">
-            <a 
-              href="https://github.com/ASTITVAAG2005" 
-              target="_blank" 
+            <a
+              href="https://github.com/yashkc2025"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-1 sm:space-x-2 text-gray-400 hover:text-white transition-colors text-xs sm:text-sm"
             >
-              <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" className="sm:h-5 sm:w-5">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+              <svg
+                height="16"
+                width="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="sm:h-5 sm:w-5"
+              >
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
               </svg>
               <span className="hidden sm:inline">GitHub</span>
             </a>
-            
-            <a 
-              href="https://www.linkedin.com/in/astitva-agarwal-b587422a6" 
-              target="_blank" 
+
+            <a
+              href="https://www.linkedin.com/in/yashkc2025"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-1 sm:space-x-2 text-gray-400 hover:text-blue-400 transition-colors text-xs sm:text-sm"
             >
-              <svg height="16" width="16" viewBox="0 0 24 24" fill="currentColor" className="sm:h-5 sm:w-5">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              <svg
+                height="16"
+                width="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="sm:h-5 sm:w-5"
+              >
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
               </svg>
               <span className="hidden sm:inline">LinkedIn</span>
             </a>
-            
-            <a 
-              href="mailto:astitvaag2005@gmail.com"
+
+            <a
+              href="mailto:yashkc2025@gmail.com"
               className="flex items-center space-x-1 sm:space-x-2 text-gray-400 hover:text-green-400 transition-colors text-xs sm:text-sm"
             >
-              <svg height="16" width="16" viewBox="0 0 24 24" fill="currentColor" className="sm:h-5 sm:w-5">
-                <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
+              <svg
+                height="16"
+                width="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="sm:h-5 sm:w-5"
+              >
+                <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" />
               </svg>
               <span className="hidden sm:inline">Contact</span>
             </a>
