@@ -2,7 +2,7 @@
 
 An intelligent agricultural assistance platform that leverages RAG (Retrieval-Augmented Generation) technology to provide multilingual farming advice to Indian farmers.
 
-![ui](image.png)
+![ui](./assets/image.png)
 
 ## Introduction
 
